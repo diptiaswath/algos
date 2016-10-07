@@ -7,11 +7,15 @@ import java.util.NoSuchElementException;
 // void insert( x )       --> Insert x
     // void remove( x )       --> Remove x
 // Comparable find( x )   --> Return item that matches x
-    // Comparable findMin( )  --> Return smallest item
-    // Comparable findMax( )  --> Return largest item
+// Comparable findMin( )  --> Return smallest item
+// Comparable findMax( )  --> Return largest item
 // boolean isEmpty( )     --> Return true if empty; else false
 // void makeEmpty( )      --> Remove all items
 // void printTree( )      --> Print tree in sorted order
+// int depthTree()        --> Prints depth of tree
+// boolean hasPathForSum() --> returns true if there is a path from root of node to leaf, whos sum equals provided target
+// isBST()
+    // printAllPaths()
 public class BinarySearchTree<E extends Comparable<E>> {
 
     private static class Node<T extends Comparable<T>> {
@@ -54,6 +58,10 @@ public class BinarySearchTree<E extends Comparable<E>> {
         preOrderTraversal(curNode.right);
     }
 
+    public int depthOfTree() {
+        return depthOfTree(getRootOfTree());
+    }
+
     public Node<E> lookUp(E target) {
         return lookUp(target, root);
     }
@@ -62,10 +70,93 @@ public class BinarySearchTree<E extends Comparable<E>> {
         return findMin(root);
     }
 
+
+
+    private E findMaxValueOnLeft(Node<E> curNode) {
+        E max = curNode.element;
+        Node<E> maxNode = curNode;
+        while (curNode.left != null) {
+            if (curNode.element.compareTo(max) > 0) {
+                max = curNode.element;
+                maxNode = curNode;
+            }
+            curNode = curNode.left;
+        }
+        return maxNode.element;
+    }
+
+    private E findMinValueOnRight(Node<E> curNode) {
+        E min = curNode.element;
+        Node<E> minNode = curNode;
+        while (curNode.right != null) {
+            if (curNode.element.compareTo(min) < 0) {
+                min = curNode.element;
+                minNode = curNode;
+            }
+            curNode = curNode.right;
+        }
+        return minNode.element;
+    }
+
+    /**
+     * Condition : all left nodes must be less than or equal to current node
+     *             all right nodes must be greater than or equal to current node
+     *             then BST
+     * @param curNode
+     * @return
+     */
+    public boolean isBSTSolution1(Node<E> curNode) {
+        if (curNode == null) {
+            return true;
+        }
+
+        System.out.println("BST Sol1 " + curNode.element);
+        // false if the max on the left is > than current node
+        if (curNode.left != null && findMaxValueOnLeft(curNode.left).compareTo(curNode.element) > 0) {
+            return false;
+        }
+
+        // false if the min of the right is <= than current node
+        if (curNode.right != null && findMinValueOnRight(curNode.right).compareTo(curNode.element) <= 0)
+            return(false);
+
+        // false if, recursively, the left or right is not a BST
+        if( !isBSTSolution1(curNode.left) || !isBSTSolution1(curNode.right)) {
+            return false;
+        }
+
+        return true;
+    }
+
+     /**
+     * /**
+     * Given a tree and a sum, return true if there is a path from the root
+     * down to a leaf, such that adding up all the values along the path
+     * equals the given sum.
+     * Strategy: subtract the node value from the sum when recurring down,
+     * and check to see if the sum is 0 when you run out of tree.
+     */
+     public boolean hasPathWithSum(Node<Integer> curNode, int sum) {
+        if (curNode == null) {
+            return (sum == 0);
+        }
+        sum = sum - curNode.element;
+        return (hasPathWithSum(curNode.left, sum) || hasPathWithSum(curNode.right, sum));
+     }
+
     private Node<E> findMin(Node<E> curNode) {
         while (curNode.left != null) {
             curNode = curNode.left;
         }
+        System.out.println("min = " + curNode.element);
+        return curNode;
+    }
+
+    private Node<E> findMax(Node<E> curNode) {
+        while (curNode.right != null) {
+            curNode = curNode.right;
+        }
+        System.out.println("max = " + curNode.element);
         return curNode;
     }
 
@@ -95,6 +186,18 @@ public class BinarySearchTree<E extends Comparable<E>> {
         return curNode;
     }
 
+    private int depthOfTree(Node<E> curNode) {
+        if (curNode == null) {
+            return 0;
+        }
+        int lTreeDepth = depthOfTree(curNode.left);
+        int rTreeDepth = depthOfTree(curNode.right);
+        if (lTreeDepth > rTreeDepth) {
+            return lTreeDepth + 1;
+        }
+        return rTreeDepth + 1;
+    }
+
 
     public static void main(String[] args) {
         BinarySearchTree bst = new BinarySearchTree();
@@ -102,18 +205,19 @@ public class BinarySearchTree<E extends Comparable<E>> {
         bst.insert(8);
         bst.insert(4);
         bst.insert(2);
-        bst.insert(12);
+        bst.insert(6);
         bst.insert(10);
         bst.insert(20);
 
-        //bst.preOrderTraversal(bst.getRootOfTree());
+        bst.inOrderTraversal(bst.getRootOfTree());
 
-        Node<Integer> node = bst.lookUp(12);
+        /*Node<Integer> node = bst.lookUp(12);
         System.out.println(node.element);
         System.out.println(node.left.element);
         System.out.println(node.right.element);
 
-        System.out.println(bst.findMin().element);
+        System.out.println(bst.findMin().element);*/
+        System.out.println(bst.isBSTSolution1(bst.getRootOfTree()));
     }
 
 
