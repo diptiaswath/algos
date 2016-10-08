@@ -14,7 +14,10 @@ import java.util.NoSuchElementException;
 // void printTree( )      --> Print tree in sorted order
 // int depthTree()        --> Prints depth of tree
 // boolean hasPathForSum() --> returns true if there is a path from root of node to leaf, whos sum equals provided target
-// isBST()
+// isBST()                  -->
+// inOrderSuccessor(Node curNode)
+// isBalancedTree()
+// lookUp(E element)
     // printAllPaths()
 public class BinarySearchTree<E extends Comparable<E>> {
 
@@ -102,6 +105,12 @@ public class BinarySearchTree<E extends Comparable<E>> {
      * Condition : all left nodes must be less than or equal to current node
      *             all right nodes must be greater than or equal to current node
      *             then BST
+     *
+     * Each node has to be traversed once atleast so the runtime for validating if
+     * tree is a binary search tree will always be O(n)
+     *
+     * But in this, its slow because each node maybe traversed more than one time.
+     *
      * @param curNode
      * @return
      */
@@ -128,6 +137,47 @@ public class BinarySearchTree<E extends Comparable<E>> {
         return true;
     }
 
+    // O(n) runtime and O(log n) space, and each node is traversed once
+    public boolean isBSTBetterSolution(Node<E> curNode) {
+        return isBSTBetterSolution(curNode, null, null);
+    }
+
+    private boolean isBSTBetterSolution(Node<E> curNode, E min, E max) {
+        if (curNode == null) {
+            return true;
+        }
+        System.out.println("curNode = " + curNode.element + ", max = " + max + " , min = " + min);
+        if ((min != null && curNode.element.compareTo(min) <= 0) || (max != null && curNode.element.compareTo(max) > 0)) {
+            return false;
+        }
+        if (!isBSTBetterSolution(curNode.left, min, curNode.element) || !isBSTBetterSolution(curNode.right, curNode.element, max)) {
+            return false;
+        }
+        return true;
+    }
+
+    private int checkHeight(Node<E> curNode) {
+        if (curNode == null) {
+            return 0;
+        }
+        int lDepth = checkHeight(curNode.left);
+        int rDepth = checkHeight(curNode.right);
+
+        int diff = Math.abs(lDepth - rDepth);
+        System.out.println("diff = " + diff);
+
+        if (diff > 1) {
+            return Integer.MIN_VALUE;
+        }
+        return Math.max(lDepth, rDepth) + 1;
+
+    }
+    // check if a tree is balanced
+    // strategy: check if the heights of the 2 subtrees of any node
+    // never differ by more than one
+    public boolean isBalancedTree(Node<E> curNode) {
+        return checkHeight(curNode) != Integer.MIN_VALUE;
+    }
      /**
      * /**
      * Given a tree and a sum, return true if there is a path from the root
@@ -192,13 +242,54 @@ public class BinarySearchTree<E extends Comparable<E>> {
         }
         int lTreeDepth = depthOfTree(curNode.left);
         int rTreeDepth = depthOfTree(curNode.right);
-        if (lTreeDepth > rTreeDepth) {
-            return lTreeDepth + 1;
-        }
-        return rTreeDepth + 1;
+        return Math.max(lTreeDepth, rTreeDepth) + 1;
     }
 
+    /**
+     * Find in-order successor of a give node in a BST tree
+     * @param curNode
+     * @return
+     */
+    public Node<E> inOrderSuccessor(Node<E> curNode) {
+        // left -> cur -> right
+        // traverse right subtree of curNode. in that traverse to hit leftmost node
+        if (curNode.right != null) {
+            return findLeftNode(curNode.right);
+        } else { // no right subtree, back up to parent,
+            // and find a node whose subtree has not been traversed yet.
+            // happens when you move from left to parent
+            Node<E> n = curNode;
+            Node<E> q = getParent(n, getRootOfTree());
+            while (q != null && q.left != null) {
+                n = q;
+                q = getParent(q, getRootOfTree());
+            }
+            return q;
+        }
+    }
 
+    private Node<E> findLeftNode(Node<E> cur) {
+        if (cur == null) {
+            return null;
+        }
+        while (cur.left != null) {
+            cur = cur.left;
+        }
+        return cur;
+    }
+
+    private Node<E> getParent(Node<E> curNode, Node<E> rootNode) {
+        if (rootNode == null) {
+            return null;
+        }
+        if (rootNode.left == curNode || rootNode.right == curNode) {
+            return rootNode;
+        }
+        Node<E> l = getParent(curNode, rootNode.left);
+        Node<E> r = getParent(curNode, rootNode.right);
+
+        return l != null ? l : r;
+    }
     public static void main(String[] args) {
         BinarySearchTree bst = new BinarySearchTree();
 
@@ -218,6 +309,10 @@ public class BinarySearchTree<E extends Comparable<E>> {
 
         System.out.println(bst.findMin().element);*/
         System.out.println(bst.isBSTSolution1(bst.getRootOfTree()));
+        System.out.println(bst.isBSTBetterSolution(bst.getRootOfTree()));
+        System.out.println(bst.isBalancedTree(bst.getRootOfTree()));
+
+
     }
 
 
