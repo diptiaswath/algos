@@ -28,7 +28,31 @@ public class StringCompressor {
         return compressedStr.toString();
     }
 
+
+
+    // THIS WILL NOT WORK, ONLY SOLUTION IS TO LOOK AHEAD
+    public static String compressStringAnotherSolution(String s) {
+        int index = 0;
+        int ctr = 0;
+        StringBuilder strBuilder = new StringBuilder();
+        char lastSeen = ' ';
+        while (index < s.length()) {
+            char cur = s.charAt(index);
+            ctr++;
+            if (lastSeen != ' ' && lastSeen != cur) {
+                strBuilder.append(lastSeen);
+                strBuilder.append(ctr);
+                ctr = 0;
+            }
+            lastSeen = cur;
+            index++;
+        }
+        strBuilder.append(lastSeen);
+        strBuilder.append(ctr);
+        return strBuilder.toString();
+    }
+
     public static void main(String[] args) {
-        System.out.println(compressString("aabcccccaaa"));
+        System.out.println(compressStringAnotherSolution("aabcccccaaa"));
     }
 }
