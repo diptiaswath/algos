@@ -4,11 +4,11 @@ import java.util.AbstractCollection;
 import java.util.Iterator;
 
 public class LinkedCollection<E> extends AbstractCollection<E> {
-    private static class Node<T> {
+    static class Node<T> {
         T element;
         Node<T> next = null;
 
-        private Node(T element) {
+        Node(T element) {
             this.element = element;
         }
     }
@@ -37,7 +37,7 @@ public class LinkedCollection<E> extends AbstractCollection<E> {
     public LinkedCollection<E> rearrangeWithRunnerTechnique() {
         Node<E> slow = first;
         Node<E> fast = first.next;
-        while (fast.next != null) {
+        while (fast != null && fast.next != null) {
             slow = slow.next;
             fast = fast.next.next;
         }
@@ -81,6 +81,10 @@ public class LinkedCollection<E> extends AbstractCollection<E> {
 
     public Iterator<E> iterator() {
         return new LinkedListIterator<E>(first);
+    }
+
+    public Node<E> getFirst() {
+        return first;
     }
 
     public int size() {

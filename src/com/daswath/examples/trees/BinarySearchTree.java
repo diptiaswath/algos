@@ -1,6 +1,8 @@
 package com.daswath.examples.trees;
 
+import java.util.ArrayList;
 import java.util.EmptyStackException;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 // ******************PUBLIC OPERATIONS*********************
@@ -25,11 +27,13 @@ public class BinarySearchTree<E extends Comparable<E>> {
         T element;
         Node<T> left;
         Node<T> right;
+        Node<T> parent;
 
         Node(T element) {
             this.element = element;
             this.left = null;
             this.right = null;
+            this.parent = null;
         }
     }
 
@@ -225,6 +229,8 @@ public class BinarySearchTree<E extends Comparable<E>> {
 
     private Node<E> insert(E x, Node<E> curNode) {
         Node<E> newNode = new Node(x);
+        newNode.parent = curNode;
+
         if (curNode == null) {
             curNode = newNode;
         } else if (x.compareTo(curNode.element) < 0) {
@@ -232,6 +238,7 @@ public class BinarySearchTree<E extends Comparable<E>> {
         } else if (x.compareTo(curNode.element) > 0) {
             curNode.right = insert(x, curNode.right);
         }
+
         // same value, hence duplicate do nothing
         return curNode;
     }
@@ -255,12 +262,11 @@ public class BinarySearchTree<E extends Comparable<E>> {
         // traverse right subtree of curNode. in that traverse to hit leftmost node
         if (curNode.right != null) {
             return findLeftNode(curNode.right);
-        } else { // no right subtree, back up to parent,
-            // and find a node whose subtree has not been traversed yet.
-            // happens when you move from left to parent
+        } else { // no right subtree, back up to parent, and find a node whose subtree has not been traversed yet.
+            // back up as long as n is a right child of n.parent
             Node<E> n = curNode;
             Node<E> q = getParent(n, getRootOfTree());
-            while (q != null && q.left != null) {
+            while (q != null && q.left != n) {
                 n = q;
                 q = getParent(q, getRootOfTree());
             }
@@ -290,6 +296,62 @@ public class BinarySearchTree<E extends Comparable<E>> {
 
         return l != null ? l : r;
     }
+
+    public void printPaths() {
+        printPaths(getRootOfTree(), new ArrayList<Comparable>(), 0);
+    }
+
+    private void printPaths(Node curNode, List<Comparable> paths, int pathLen) {
+        if (curNode == null) {
+            return;
+        }
+        paths.add(curNode.element);
+        pathLen++;
+
+        // if the node is a leaf, print all paths that led to here
+        if (curNode.left == null && curNode.right == null) {
+            displayPath(paths, pathLen);
+        } else {
+            printPaths(curNode.left, paths, pathLen);
+            printPaths(curNode.right, paths, pathLen);
+        }
+    }
+
+    private void displayPath(List<Comparable> paths, int len) {
+        for (Comparable p : paths) {
+            System.out.print(p + " -> ");
+        }
+        System.out.println();
+    }
+
+    // All paths with target sum (brute force approach with O(n log n)
+    public int countPathsWithSum(Node<Integer> curNode, int targetSum) {
+        if (curNode == null) {
+            return 0;
+        }
+        int pathsFromCur = countPathsWithSumFromNode(curNode, targetSum, 0);
+
+        int pathsFromLeft = countPathsWithSum(curNode.left, targetSum);
+        int pathsFromRight = countPathsWithSum(curNode.right, targetSum);
+
+        return pathsFromCur + pathsFromLeft + pathsFromRight;
+    }
+
+    private int countPathsWithSumFromNode(Node<Integer> curNode, int target, int current) {
+        if (curNode == null) {
+            return 0;
+        }
+        current = current + curNode.element;
+        int totalPaths = 0;
+        if (current == target) {
+            totalPaths++;
+        }
+
+        totalPaths += countPathsWithSumFromNode(curNode.left, target, current);
+        totalPaths += countPathsWithSumFromNode(curNode.right, target, current);
+        return totalPaths;
+    }
+
     public static void main(String[] args) {
         BinarySearchTree bst = new BinarySearchTree();
 
@@ -300,7 +362,8 @@ public class BinarySearchTree<E extends Comparable<E>> {
         bst.insert(10);
         bst.insert(20);
 
-        bst.inOrderTraversal(bst.getRootOfTree());
+       // bst.inOrderTraversal(bst.getRootOfTree());
+        bst.printPaths();
 
         /*Node<Integer> node = bst.lookUp(12);
         System.out.println(node.element);
@@ -308,9 +371,9 @@ public class BinarySearchTree<E extends Comparable<E>> {
         System.out.println(node.right.element);
 
         System.out.println(bst.findMin().element);*/
-        System.out.println(bst.isBSTSolution1(bst.getRootOfTree()));
+      /*  System.out.println(bst.isBSTSolution1(bst.getRootOfTree()));
         System.out.println(bst.isBSTBetterSolution(bst.getRootOfTree()));
-        System.out.println(bst.isBalancedTree(bst.getRootOfTree()));
+        System.out.println(bst.isBalancedTree(bst.getRootOfTree()));*/
 
 
     }

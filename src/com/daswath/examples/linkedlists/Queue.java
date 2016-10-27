@@ -1,11 +1,12 @@
 package com.daswath.examples.linkedlists;
 
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
  * Queue implemented as a linked list
  */
-public class Queue<T> {
+public class Queue<T> implements Iterable<T> {
     private static class Node<T> {
         T element;
         Node<T> next;
@@ -44,4 +45,36 @@ public class Queue<T> {
         return element;
     }
 
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            private Node<T> current = first;
+            public boolean hasNext() {
+                return current != null;
+            }
+
+            public T next() {
+                T element = null;
+                if (hasNext()) {
+                    element = current.element;
+                    current = current.next;
+                }
+                return element;
+            }
+        };
+    }
+
+
+    public static void main(String[] args) {
+        Queue<Integer> queue = new Queue<Integer>();
+        queue.add(3);
+        queue.add(18);
+        queue.add(5);
+        queue.add(2);
+
+        Iterator<Integer> it = queue.iterator();
+        while (it.hasNext()) {
+            System.out.println(it.next());
+        }
+        System.out.println(queue.remove());
+    }
 }

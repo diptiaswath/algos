@@ -18,7 +18,7 @@ public class QueueAsArray<T> {
 
     public void enqueue(T element) {
         if (isFull()) {
-            return;
+           return;
         }
         a[last++] = element;
     }
